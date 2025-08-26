@@ -70,7 +70,42 @@
         cursor: pointer;
       }
 
-      /* Video overlay */
+      .center-image {
+        position: fixed;
+        top: 75%;
+        left: 32%;
+        transform: translate(-50%, -50%);
+        width: 50px;
+        height: auto;
+        cursor: pointer;
+        z-index: 1;
+      }
+
+      #fade-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: black;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 10001;
+      }
+
+      .fade-to-black {
+        animation: fadeToBlack 1s forwards;
+      }
+
+      @keyframes fadeToBlack {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
       #video-overlay {
         position: fixed;
         top: 0;
@@ -100,9 +135,18 @@
       <img src="580b585b2edbce24c47b2b84.png" alt="Bottom Image" id="img2" />
     </div>
 
+    <img
+      src="./center.png"
+      alt="Center Image"
+      class="center-image"
+      id="center-img"
+    />
+
     <div id="video-overlay">
       <video id="video" controls></video>
     </div>
+
+    <div id="fade-overlay"></div>
 
     <audio id="bg-music" src="diomusic.mp3" loop></audio>
 
@@ -111,6 +155,8 @@
       const audio = document.getElementById("bg-music");
       const videoOverlay = document.getElementById("video-overlay");
       const video = document.getElementById("video");
+      const centerImg = document.getElementById("center-img");
+      const fadeOverlay = document.getElementById("fade-overlay");
 
       function startExperience() {
         overlay.classList.add("fade-out");
@@ -161,6 +207,13 @@
       });
 
       video.addEventListener("click", (e) => e.stopPropagation());
+
+      centerImg.addEventListener("click", () => {
+        fadeOverlay.classList.add("fade-to-black");
+        fadeOverlay.addEventListener("animationend", () => {
+          window.location.href = "target.html";
+        });
+      });
     </script>
   </body>
 </html>
