@@ -176,11 +176,11 @@
       const centerImg = document.getElementById("center-img");
       const fadeOverlay = document.getElementById("fade-overlay");
 
-      
       clickText.addEventListener("animationend", (event) => {
         if (event.animationName === "fadeIn") {
           clickText.style.cursor = "pointer";
-          clickText.style.pointerEvents = "all";
+          // Enable pointer events on black-overlay only after fadeIn
+          overlay.style.pointerEvents = "all";
           clickText.addEventListener("click", startExperience);
         }
       });
@@ -188,7 +188,6 @@
       function startExperience() {
         overlay.classList.add("fade-out");
 
-        
         audio.volume = 0;
         audio.play();
         let vol = 0;
@@ -214,7 +213,6 @@
         clickText.removeEventListener("click", startExperience);
       }
 
-      
       function playVideo(src) {
         video.src = src;
         videoOverlay.style.display = "flex";
@@ -230,16 +228,13 @@
         playVideo("pointless.mp4");
       });
 
-
       videoOverlay.addEventListener("click", () => {
         video.pause();
         videoOverlay.style.display = "none";
       });
 
-      
       video.addEventListener("click", (e) => e.stopPropagation());
 
-      
       centerImg.addEventListener("click", () => {
         fadeOverlay.classList.add("fade-to-black");
         fadeOverlay.addEventListener("animationend", () => {
