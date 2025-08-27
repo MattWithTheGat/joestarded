@@ -179,7 +179,6 @@
       clickText.addEventListener("animationend", (event) => {
         if (event.animationName === "fadeIn") {
           clickText.style.cursor = "pointer";
-          // Enable pointer events on black-overlay only after fadeIn
           overlay.style.pointerEvents = "all";
           clickText.addEventListener("click", startExperience);
         }
