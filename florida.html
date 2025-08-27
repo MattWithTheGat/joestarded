@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Prison</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        overflow: hidden;
+        font-family: Arial, sans-serif;
+        background: url("home.jpg") center/cover no-repeat;
+        background-size: cover;
+      }
+
+      #black-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: black;
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        pointer-events: none;
+        opacity: 1;
+      }
+
+      #click-text {
+        color: white;
+        font-size: 2em;
+        cursor: pointer;
+        user-select: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        opacity: 0;
+        animation: fadeIn 5s forwards;
+      }
+
+      .fade-out {
+        animation: fadeOut 7.5s forwards;
+        pointer-events: none;
+      }
+
+      @keyframes fadeIn {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeOut {
+        0% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+          display: none;
+        }
+      }
+
+      .right-images {
+        position: fixed;
+        top: 50%;
+        right: 25px;
+        transform: translateY(-50%);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        z-index: 1;
+      }
+
+      .right-images img {
+        width: 150px;
+        height: auto;
+        border: 2px solid white;
+        border-radius: 10px;
+        cursor: pointer;
+      }
+
+      .center-image {
+        position: fixed;
+        top: 75%;
+        left: 35%;
+        transform: translate(-50%, -50%);
+        width: 50px;
+        height: auto;
+        cursor: pointer;
+        z-index: 1;
+      }
+
+      #video-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        display: none;
+        justify-content: center;
+        align-items: center;
+        z-index: 10000;
+      }
+
+      #video-overlay video {
+        max-width: 90%;
+        max-height: 90%;
+        border: 2px solid white;
+        border-radius: 10px;
+      }
+
+      #fade-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: black;
+        opacity: 0;
+        pointer-events: none;
+        z-index: 10001;
+      }
+
+      .fade-to-black {
+        animation: fadeToBlack 1s forwards;
+      }
+
+      @keyframes fadeToBlack {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="black-overlay">
+      <div id="click-text">Click to Enter</div>
+    </div>
+
+    <div class="right-images">
+      <img src="water.png" alt="Water" id="img1" />
+      <img src="cry.png" alt="cry" id="img2" />
+    </div>
+
+    <img
+      src="stone_ocean_center.png"
+      alt="Center Image"
+      class="center-image"
+      id="center-img"
+    />
+
+    <audio id="bg-music" src="firetheme.mp3" loop></audio>
+
+    <div id="video-overlay">
+      <video id="video" controls></video>
+    </div>
+
+    <div id="fade-overlay"></div>
+
+    <script>
+      const overlay = document.getElementById("black-overlay");
+      const clickText = document.getElementById("click-text");
+      const audio = document.getElementById("bg-music");
+      const videoOverlay = document.getElementById("video-overlay");
+      const video = document.getElementById("video");
+      const centerImg = document.getElementById("center-img");
+      const fadeOverlay = document.getElementById("fade-overlay");
+
+      
+      clickText.addEventListener("animationend", (event) => {
+        if (event.animationName === "fadeIn") {
+          clickText.style.cursor = "pointer";
+          clickText.style.pointerEvents = "all";
+          clickText.addEventListener("click", startExperience);
+        }
+      });
+
+      function startExperience() {
+        overlay.classList.add("fade-out");
+
+        
+        audio.volume = 0;
+        audio.play();
+        let vol = 0;
+        const fadeDuration = 5000;
+        const interval = 50;
+        const step = interval / fadeDuration;
+
+        const fadeIn = setInterval(() => {
+          if (vol < 1) {
+            vol += step;
+            audio.volume = Math.min(vol, 0.25);
+          } else {
+            clearInterval(fadeIn);
+          }
+        }, interval);
+
+        overlay.addEventListener("animationend", (event) => {
+          if (event.animationName === "fadeOut") {
+            overlay.remove();
+          }
+        });
+
+        clickText.removeEventListener("click", startExperience);
+      }
+
+      
+      function playVideo(src) {
+        video.src = src;
+        videoOverlay.style.display = "flex";
+        video.currentTime = 0;
+        video.play();
+      }
+
+      document.getElementById("img1").addEventListener("click", () => {
+        playVideo("byebyeff.mp4");
+      });
+
+      document.getElementById("img2").addEventListener("click", () => {
+        playVideo("pointless.mp4");
+      });
+
+
+      videoOverlay.addEventListener("click", () => {
+        video.pause();
+        videoOverlay.style.display = "none";
+      });
+
+      
+      video.addEventListener("click", (e) => e.stopPropagation());
+
+      
+      centerImg.addEventListener("click", () => {
+        fadeOverlay.classList.add("fade-to-black");
+        fadeOverlay.addEventListener("animationend", () => {
+          window.location.href = "florida.html";
+        });
+      });
+    </script>
+  </body>
+</html>
