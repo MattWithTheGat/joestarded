@@ -200,7 +200,7 @@
         const fadeIn = setInterval(() => {
           if (vol < 1) {
             vol += step;
-            audio.volume = Math.min(vol, 0.5);
+            audio.volume = Math.min(vol, 0.20);
           } else {
             clearInterval(fadeIn);
           }
