@@ -155,13 +155,13 @@
     </div>
 
     <img
-      src="ship.png"
+      src="ship1.png"
       alt="Center Image"
       class="center-image"
       id="center-img"
     />
 
-    <audio id="bg-music" src="firetheme.mp3" loop></audio>
+    <audio id="bg-music" src="test.mp3" loop></audio>
 
     <div id="video-overlay">
       <video id="video" controls></video>
@@ -200,7 +200,7 @@
         const fadeIn = setInterval(() => {
           if (vol < 1) {
             vol += step;
-            audio.volume = Math.min(vol, 0.25);
+            audio.volume = Math.min(vol, 0.5);
           } else {
             clearInterval(fadeIn);
           }
