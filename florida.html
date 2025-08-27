@@ -75,6 +75,7 @@
         flex-direction: column;
         gap: 20px;
         z-index: 1;
+        pointer-events: none;
       }
 
       .right-images img {
@@ -88,12 +89,13 @@
       .center-image {
         position: fixed;
         top: 75%;
-        left: 35%;
+        left: 20%;
         transform: translate(-50%, -50%);
-        width: 50px;
+        width: 456px;
         height: auto;
         cursor: pointer;
         z-index: 1;
+        pointer-events: none;
       }
 
       #video-overlay {
@@ -153,7 +155,7 @@
     </div>
 
     <img
-      src="stone_ocean_center.png"
+      src="ship.png"
       alt="Center Image"
       class="center-image"
       id="center-img"
@@ -175,6 +177,7 @@
       const video = document.getElementById("video");
       const centerImg = document.getElementById("center-img");
       const fadeOverlay = document.getElementById("fade-overlay");
+      const rightImages = document.querySelector(".right-images");
 
       clickText.addEventListener("animationend", (event) => {
         if (event.animationName === "fadeIn") {
@@ -206,6 +209,8 @@
         overlay.addEventListener("animationend", (event) => {
           if (event.animationName === "fadeOut") {
             overlay.remove();
+            centerImg.style.pointerEvents = "auto";
+            rightImages.style.pointerEvents = "auto";
           }
         });
 
@@ -236,9 +241,13 @@
 
       centerImg.addEventListener("click", () => {
         fadeOverlay.classList.add("fade-to-black");
-        fadeOverlay.addEventListener("animationend", () => {
-          window.location.href = "florida.html";
-        });
+        fadeOverlay.addEventListener(
+          "animationend",
+          () => {
+            window.location.href = "spacecenter.html";
+          },
+          { once: true }
+        );
       });
     </script>
   </body>
