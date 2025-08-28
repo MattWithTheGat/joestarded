@@ -203,6 +203,8 @@
           if (vol < regularVolume) {
             vol += step;
             audio.volume = Math.min(vol, regularVolume);
+
+            audio.volume = Math.min(vol, 0.30);
           } else {
             clearInterval(fadeIn);
           }
