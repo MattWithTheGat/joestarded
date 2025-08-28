@@ -178,6 +178,8 @@
       const centerImg = document.getElementById("center-img");
       const fadeOverlay = document.getElementById("fade-overlay");
       const rightImages = document.querySelector(".right-images");
+      const regularVolume = 0.35;
+      const lowVolume = 0.1;
 
       clickText.addEventListener("animationend", (event) => {
         if (event.animationName === "fadeIn") {
@@ -198,9 +200,9 @@
         const step = interval / fadeDuration;
 
         const fadeIn = setInterval(() => {
-          if (vol < 1) {
+          if (vol < regularVolume) {
             vol += step;
-            audio.volume = Math.min(vol, 0.20);
+            audio.volume = Math.min(vol, regularVolume);
           } else {
             clearInterval(fadeIn);
           }
@@ -222,6 +224,7 @@
         videoOverlay.style.display = "flex";
         video.currentTime = 0;
         video.play();
+        audio.volume = lowVolume;
       }
 
       document.getElementById("img1").addEventListener("click", () => {
@@ -235,6 +238,7 @@
       videoOverlay.addEventListener("click", () => {
         video.pause();
         videoOverlay.style.display = "none";
+        audio.volume = regularVolume;
       });
 
       video.addEventListener("click", (e) => e.stopPropagation());

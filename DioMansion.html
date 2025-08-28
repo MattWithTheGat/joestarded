@@ -94,7 +94,7 @@
       }
 
       .fade-to-black {
-        animation: fadeToBlack 1s forwards;
+        animation: fadeToBlack 3.8s forwards;
       }
 
       @keyframes fadeToBlack {
@@ -149,10 +149,12 @@
     <div id="fade-overlay"></div>
 
     <audio id="bg-music" src="diomusic.mp3" loop></audio>
+    <audio id="gravity-sound" src="doyoubelieveingravity.mp3"></audio>
 
     <script>
       const overlay = document.getElementById("black-overlay");
       const audio = document.getElementById("bg-music");
+      const gravitySound = document.getElementById("gravity-sound");
       const videoOverlay = document.getElementById("video-overlay");
       const video = document.getElementById("video");
       const centerImg = document.getElementById("center-img");
@@ -209,10 +211,15 @@
       video.addEventListener("click", (e) => e.stopPropagation());
 
       centerImg.addEventListener("click", () => {
+        gravitySound.play();
         fadeOverlay.classList.add("fade-to-black");
-        fadeOverlay.addEventListener("animationend", () => {
-          window.location.href = "florida.html";
-        });
+        fadeOverlay.addEventListener(
+          "animationend",
+          () => {
+            window.location.href = "florida.html";
+          },
+          { once: true }
+        );
       });
     </script>
   </body>
