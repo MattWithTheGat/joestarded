@@ -86,18 +86,6 @@
         cursor: pointer;
       }
 
-      .center-image {
-        position: fixed;
-        top: 75%;
-        left: 20%;
-        transform: translate(-50%, -50%);
-        width: 456px;
-        height: auto;
-        cursor: pointer;
-        z-index: 1;
-        pointer-events: none;
-      }
-
       #video-overlay {
         position: fixed;
         top: 0;
@@ -154,13 +142,6 @@
       <img src="cry.png" alt="cry" id="img2" />
     </div>
 
-    <img
-      src="ship1.png"
-      alt="Center Image"
-      class="center-image"
-      id="center-img"
-    />
-
     <audio id="bg-music" src="test2.mp3" loop></audio>
 
     <div id="video-overlay">
@@ -175,9 +156,8 @@
       const audio = document.getElementById("bg-music");
       const videoOverlay = document.getElementById("video-overlay");
       const video = document.getElementById("video");
-      const centerImg = document.getElementById("center-img");
-      const fadeOverlay = document.getElementById("fade-overlay");
       const rightImages = document.querySelector(".right-images");
+      const fadeOverlay = document.getElementById("fade-overlay");
       const regularVolume = 0.35;
       const lowVolume = 0.1;
 
@@ -204,7 +184,7 @@
             vol += step;
             audio.volume = Math.min(vol, regularVolume);
 
-            audio.volume = Math.min(vol, 0.30);
+            audio.volume = Math.min(vol, 0.3);
           } else {
             clearInterval(fadeIn);
           }
@@ -213,7 +193,6 @@
         overlay.addEventListener("animationend", (event) => {
           if (event.animationName === "fadeOut") {
             overlay.remove();
-            centerImg.style.pointerEvents = "auto";
             rightImages.style.pointerEvents = "auto";
           }
         });
@@ -244,17 +223,6 @@
       });
 
       video.addEventListener("click", (e) => e.stopPropagation());
-
-      centerImg.addEventListener("click", () => {
-        fadeOverlay.classList.add("fade-to-black");
-        fadeOverlay.addEventListener(
-          "animationend",
-          () => {
-            window.location.href = "spacecenter.html";
-          },
-          { once: true }
-        );
-      });
     </script>
   </body>
 </html>
