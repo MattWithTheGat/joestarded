@@ -332,8 +332,8 @@
           id: "bouncing-dog-0",
           x: Math.random() * (window.innerWidth - 100),
           y: Math.random() * (window.innerHeight - 100),
-          speedX: 2 * (Math.random() < 0.5 ? 1 : -1),
-          speedY: 2 * (Math.random() < 0.5 ? 1 : -1),
+          speedX: 9 * (Math.random() < 0.5 ? 1 : -1),
+          speedY: 9 * (Math.random() < 0.5 ? 1 : -1),
           active: true,
           element: document.getElementById("bouncing-dog-0"),
         },
@@ -354,8 +354,8 @@
           id: `bouncing-dog-${dogCount}`,
           x: newX,
           y: newY,
-          speedX: 2 * (Math.random() < 0.5 ? 1 : -1),
-          speedY: 2 * (Math.random() < 0.5 ? 1 : -1),
+          speedX: 9 * (Math.random() < 0.5 ? 1 : -1),
+          speedY: 9 * (Math.random() < 0.5 ? 1 : -1),
           active: true,
           element: newDogElement,
         };
@@ -387,8 +387,8 @@
               setTimeout(() => {
                 dog.x = Math.random() * (window.innerWidth - 100);
                 dog.y = Math.random() * (window.innerHeight - 100);
-                dog.speedX = 2 * (Math.random() < 0.5 ? 1 : -1);
-                dog.speedY = 2 * (Math.random() < 0.5 ? 1 : -1);
+                dog.speedX = 9 * (Math.random() < 0.5 ? 1 : -1);
+                dog.speedY = 9 * (Math.random() < 0.5 ? 1 : -1);
                 element.style.left = dog.x + "px";
                 element.style.top = dog.y + "px";
                 element.style.display = "block";
@@ -466,7 +466,7 @@
       function freezeEverything() {
         if (isFrozen || isCooldown || !isExperienceStarted) return;
 
-        console.log("Freezing everything for 10 seconds");
+        console.log("THE WORLD COMES TO A HALT");
         isFrozen = true;
 
         grayscaleOverlay.style.display = "block";
@@ -493,7 +493,7 @@
         cancelAnimationFrame(animationFrameId);
 
         setTimeout(() => {
-          console.log("Resuming everything");
+          console.log("time resumes");
           isFrozen = false;
 
           timeResumesSound.currentTime = 0;
