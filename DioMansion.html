@@ -15,6 +15,48 @@
         background-size: cover;
       }
 
+      #grayscale-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: inherit;
+        filter: grayscale(100%);
+        opacity: 0.7;
+        z-index: 9998;
+        pointer-events: none;
+        clip-path: circle(0% at 50% 50%);
+        display: none;
+      }
+
+      .spread-grayscale {
+        animation: spreadGrayscale 2s ease-out forwards;
+      }
+
+      .shrink-grayscale {
+        animation: shrinkGrayscale 2s ease-out forwards;
+      }
+
+      @keyframes spreadGrayscale {
+        from {
+          clip-path: circle(0% at 50% 50%);
+        }
+        to {
+          clip-path: circle(150% at 50% 50%);
+        }
+      }
+
+      @keyframes shrinkGrayscale {
+        from {
+          clip-path: circle(150% at 50% 50%);
+        }
+        to {
+          clip-path: circle(0% at 50% 50%);
+          display: none;
+        }
+      }
+
       #black-overlay {
         position: fixed;
         top: 0;
@@ -146,10 +188,21 @@
         border: 2px solid white;
         border-radius: 10px;
       }
+
+      .frozen {
+        pointer-events: none !important;
+        cursor: default !important;
+      }
+
+      .paused {
+        animation-play-state: paused !important;
+      }
     </style>
   </head>
   <body>
     <div id="black-overlay">Click to Enter</div>
+
+    <div id="grayscale-overlay"></div>
 
     <div class="right-images">
       <img src="584fcc516a5ae41a83ddee89.png" alt="Top Image" id="img1" />
@@ -180,18 +233,29 @@
     <audio id="gravity-sound" src="doyoubelieveingravity.mp3"></audio>
     <audio id="click-sound" src="clicksound.mp3"></audio>
     <audio id="dojyaaan-sound" src="Dojyaaan Sound Effect.mp3"></audio>
+    <audio id="zaowlrd-sound" src="zaowlrd.mp3"></audio>
+    <audio id="time-resumes-sound" src="time-resumes.mp3"></audio>
 
     <script>
       const overlay = document.getElementById("black-overlay");
+      const grayscaleOverlay = document.getElementById("grayscale-overlay");
       const audio = document.getElementById("bg-music");
       const gravitySound = document.getElementById("gravity-sound");
+      const clickSound = document.getElementById("click-sound");
       const dojyaaanSound = document.getElementById("dojyaaan-sound");
+      const zaowlrdSound = document.getElementById("zaowlrd-sound");
+      const timeResumesSound = document.getElementById("time-resumes-sound");
       const videoOverlay = document.getElementById("video-overlay");
       const video = document.getElementById("video");
       const centerImg = document.getElementById("center-img");
       const fadeOverlay = document.getElementById("fade-overlay");
       let dogClickCount = 0;
       let dogCount = 1;
+      let isExperienceStarted = false;
+      let isFrozen = false;
+      let isCooldown = false;
+      let inputBuffer = "";
+      let animationFrameId = null;
 
       function startExperience() {
         overlay.classList.add("fade-out");
@@ -216,6 +280,7 @@
         initialDojyaaan.play();
 
         overlay.removeEventListener("click", startExperience);
+        isExperienceStarted = true;
 
         overlay.addEventListener("animationend", () => {
           overlay.remove();
@@ -232,30 +297,34 @@
       }
 
       document.getElementById("img1").addEventListener("click", () => {
-        playVideo("donnutt.mp4");
+        if (!isFrozen) playVideo("donnutt.mp4");
       });
 
       document.getElementById("img2").addEventListener("click", () => {
-        playVideo("soccer.mp4");
+        if (!isFrozen) playVideo("soccer.mp4");
       });
 
       videoOverlay.addEventListener("click", () => {
-        video.pause();
-        videoOverlay.style.display = "none";
+        if (!isFrozen) {
+          video.pause();
+          videoOverlay.style.display = "none";
+        }
       });
 
       video.addEventListener("click", (e) => e.stopPropagation());
 
       centerImg.addEventListener("click", () => {
-        gravitySound.play();
-        fadeOverlay.classList.add("fade-to-black");
-        fadeOverlay.addEventListener(
-          "animationend",
-          () => {
-            window.location.href = "florida.html";
-          },
-          { once: true }
-        );
+        if (!isFrozen) {
+          gravitySound.play();
+          fadeOverlay.classList.add("fade-to-black");
+          fadeOverlay.addEventListener(
+            "animationend",
+            () => {
+              window.location.href = "florida.html";
+            },
+            { once: true }
+          );
+        }
       });
 
       let dogs = [
@@ -275,18 +344,16 @@
         newDogElement.id = `bouncing-dog-${dogCount}`;
         newDogElement.classList.remove("launch-effect");
         newDogElement.style.display = "block";
-        newDogElement.style.left = `${
-          Math.random() * (window.innerWidth - 100)
-        }px`;
-        newDogElement.style.top = `${
-          Math.random() * (window.innerHeight - 100)
-        }px`;
+        const newX = Math.random() * (window.innerWidth - 100);
+        const newY = Math.random() * (window.innerHeight - 100);
+        newDogElement.style.left = `${newX}px`;
+        newDogElement.style.top = `${newY}px`;
         document.body.appendChild(newDogElement);
 
         const newDog = {
           id: `bouncing-dog-${dogCount}`,
-          x: Math.random() * (window.innerWidth - 100),
-          y: Math.random() * (window.innerHeight - 100),
+          x: newX,
+          y: newY,
           speedX: 2 * (Math.random() < 0.5 ? 1 : -1),
           speedY: 2 * (Math.random() < 0.5 ? 1 : -1),
           active: true,
@@ -294,7 +361,9 @@
         };
 
         dogs.push(newDog);
-        console.log(`Created dog ${newDog.id}`);
+        console.log(
+          `Created dog ${newDog.id} at x: ${newDog.x}, y: ${newDog.y}`
+        );
         newDogElement.addEventListener("click", () =>
           handleDogClick(newDog, newDogElement)
         );
@@ -304,12 +373,12 @@
       }
 
       function handleDogClick(dog, element) {
-        if (dog.active) {
+        if (dog.active && !isFrozen) {
           dogClickCount++;
           console.log(`Dog ${dog.id} clicked, total clicks: ${dogClickCount}`);
           dog.active = false;
-          const clickSound = new Audio("clicksound.mp3");
-          clickSound.play();
+          const newClickSound = new Audio("clicksound.mp3");
+          newClickSound.play();
           element.classList.add("launch-effect");
           element.addEventListener(
             "animationend",
@@ -327,7 +396,9 @@
                 dog.active = true;
                 const respawnDojyaaan = new Audio("Dojyaaan Sound Effect.mp3");
                 respawnDojyaaan.play();
-                console.log(`Dog ${dog.id} respawned`);
+                console.log(
+                  `Dog ${dog.id} respawned at x: ${dog.x}, y: ${dog.y}`
+                );
 
                 if (dogClickCount <= 10) {
                   createNewDog();
@@ -358,29 +429,129 @@
       );
 
       function updateDogPositions() {
-        dogs.forEach((dog) => {
-          if (!dog.active) return;
+        if (!isFrozen) {
+          dogs.forEach((dog, index) => {
+            if (
+              !dog ||
+              typeof dog.x === "undefined" ||
+              typeof dog.y === "undefined"
+            ) {
+              console.error(`Dog at index ${index} is invalid:`, dog);
+              return;
+            }
 
-          dog.x += dog.speedX;
-          dog.y += dog.speedY;
+            if (!dog.active) return;
 
-          if (dog.x <= 0 || dog.x >= window.innerWidth - 100) {
-            dog.speedX = -dog.speedX;
-            dog.x = Math.max(0, Math.min(dog.x, window.innerWidth - 100));
-          }
-          if (dog.y <= 0 || dog.y >= window.innerHeight - 100) {
-            dog.speedY = -dog.speedY;
-            dog.y = Math.max(0, Math.min(dog.y, window.innerHeight - 100));
-          }
+            dog.x += dog.speedX;
+            dog.y += dog.speedY;
 
-          dog.element.style.left = dog.x + "px";
-          dog.element.style.top = dog.y + "px";
-        });
+            if (dog.x <= 0 || dog.x >= window.innerWidth - 100) {
+              dog.speedX = -dog.speedX;
+              dog.x = Math.max(0, Math.min(dog.x, window.innerWidth - 100));
+            }
+            if (dog.y <= 0 || dog.y >= window.innerHeight - 100) {
+              dog.speedY = -dog.speedY;
+              dog.y = Math.max(0, Math.min(dog.y, window.innerHeight - 100));
+            }
 
-        requestAnimationFrame(updateDogPositions);
+            dog.element.style.left = dog.x + "px";
+            dog.element.style.top = dog.y + "px";
+          });
+        }
+        animationFrameId = requestAnimationFrame(updateDogPositions);
       }
 
-      requestAnimationFrame(updateDogPositions);
+      animationFrameId = requestAnimationFrame(updateDogPositions);
+
+      function freezeEverything() {
+        if (isFrozen || isCooldown || !isExperienceStarted) return;
+
+        console.log("Freezing everything for 10 seconds");
+        isFrozen = true;
+
+        grayscaleOverlay.style.display = "block";
+        grayscaleOverlay.classList.add("spread-grayscale");
+
+        audio.pause();
+        gravitySound.pause();
+        clickSound.pause();
+        dojyaaanSound.pause();
+        if (video.playing) video.pause();
+
+        document
+          .querySelectorAll(
+            ".right-images img, .center-image, .bouncing-image, #video-overlay"
+          )
+          .forEach((el) => el.classList.add("frozen"));
+
+        dogs.forEach((dog) => {
+          if (dog && dog.element) {
+            dog.element.classList.add("paused");
+          }
+        });
+
+        cancelAnimationFrame(animationFrameId);
+
+        setTimeout(() => {
+          console.log("Resuming everything");
+          isFrozen = false;
+
+          timeResumesSound.currentTime = 0;
+          timeResumesSound.play();
+
+          grayscaleOverlay.classList.remove("spread-grayscale");
+          grayscaleOverlay.classList.add("shrink-grayscale");
+          grayscaleOverlay.addEventListener(
+            "animationend",
+            () => {
+              grayscaleOverlay.style.display = "none";
+              grayscaleOverlay.classList.remove("shrink-grayscale");
+            },
+            { once: true }
+          );
+
+          audio.play();
+          if (video.paused && videoOverlay.style.display === "flex")
+            video.play();
+
+          document
+            .querySelectorAll(
+              ".right-images img, .center-image, .bouncing-image, #video-overlay"
+            )
+            .forEach((el) => el.classList.remove("frozen"));
+
+          dogs.forEach((dog) => {
+            if (dog && dog.element) {
+              dog.element.classList.remove("paused");
+            }
+          });
+
+          animationFrameId = requestAnimationFrame(updateDogPositions);
+
+          isCooldown = true;
+          setTimeout(() => {
+            isCooldown = false;
+            console.log("world can use looollll");
+          }, 20000);
+        }, 10000);
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (!isExperienceStarted || isFrozen || isCooldown) return;
+
+        inputBuffer += e.key.toLowerCase();
+        if (inputBuffer.length > 5) {
+          inputBuffer = inputBuffer.slice(-5);
+        }
+
+        if (inputBuffer === "world") {
+          zaowlrdSound.currentTime = 0;
+          zaowlrdSound.play();
+          freezeEverything();
+
+          inputBuffer = "";
+        }
+      });
     </script>
   </body>
 </html>
