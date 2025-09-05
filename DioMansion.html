@@ -81,6 +81,27 @@
         z-index: 1;
       }
 
+      .bouncing-image {
+        position: absolute;
+        width: 100px;
+        height: auto;
+        z-index: 2;
+        cursor: pointer;
+      }
+
+      .launch-effect {
+        animation: launch 1s ease-out forwards;
+      }
+
+      @keyframes launch {
+        0% {
+          transform: scale(1);
+        }
+        100% {
+          transform: scale(0.1) translateY(-100vh);
+        }
+      }
+
       #fade-overlay {
         position: fixed;
         top: 0;
@@ -142,6 +163,13 @@
       id="center-img"
     />
 
+    <img
+      src="dumbdog.png"
+      alt="Bouncing Dog"
+      class="bouncing-image"
+      id="bouncing-dog-0"
+    />
+
     <div id="video-overlay">
       <video id="video" controls></video>
     </div>
@@ -150,15 +178,20 @@
 
     <audio id="bg-music" src="diomusic.mp3" loop></audio>
     <audio id="gravity-sound" src="doyoubelieveingravity.mp3"></audio>
+    <audio id="click-sound" src="clicksound.mp3"></audio>
+    <audio id="dojyaaan-sound" src="Dojyaaan Sound Effect.mp3"></audio>
 
     <script>
       const overlay = document.getElementById("black-overlay");
       const audio = document.getElementById("bg-music");
       const gravitySound = document.getElementById("gravity-sound");
+      const dojyaaanSound = document.getElementById("dojyaaan-sound");
       const videoOverlay = document.getElementById("video-overlay");
       const video = document.getElementById("video");
       const centerImg = document.getElementById("center-img");
       const fadeOverlay = document.getElementById("fade-overlay");
+      let dogClickCount = 0;
+      let dogCount = 1;
 
       function startExperience() {
         overlay.classList.add("fade-out");
@@ -178,6 +211,9 @@
             clearInterval(fadeIn);
           }
         }, interval);
+
+        const initialDojyaaan = new Audio("Dojyaaan Sound Effect.mp3");
+        initialDojyaaan.play();
 
         overlay.removeEventListener("click", startExperience);
 
@@ -221,6 +257,130 @@
           { once: true }
         );
       });
+
+      let dogs = [
+        {
+          id: "bouncing-dog-0",
+          x: Math.random() * (window.innerWidth - 100),
+          y: Math.random() * (window.innerHeight - 100),
+          speedX: 2 * (Math.random() < 0.5 ? 1 : -1),
+          speedY: 2 * (Math.random() < 0.5 ? 1 : -1),
+          active: true,
+          element: document.getElementById("bouncing-dog-0"),
+        },
+      ];
+
+      function createNewDog() {
+        const newDogElement = dogs[0].element.cloneNode(true);
+        newDogElement.id = `bouncing-dog-${dogCount}`;
+        newDogElement.classList.remove("launch-effect");
+        newDogElement.style.display = "block";
+        newDogElement.style.left = `${
+          Math.random() * (window.innerWidth - 100)
+        }px`;
+        newDogElement.style.top = `${
+          Math.random() * (window.innerHeight - 100)
+        }px`;
+        document.body.appendChild(newDogElement);
+
+        const newDog = {
+          id: `bouncing-dog-${dogCount}`,
+          x: Math.random() * (window.innerWidth - 100),
+          y: Math.random() * (window.innerHeight - 100),
+          speedX: 2 * (Math.random() < 0.5 ? 1 : -1),
+          speedY: 2 * (Math.random() < 0.5 ? 1 : -1),
+          active: true,
+          element: newDogElement,
+        };
+
+        dogs.push(newDog);
+        console.log(`Created dog ${newDog.id}`);
+        newDogElement.addEventListener("click", () =>
+          handleDogClick(newDog, newDogElement)
+        );
+        const dojyaaan = new Audio("Dojyaaan Sound Effect.mp3");
+        dojyaaan.play();
+        dogCount++;
+      }
+
+      function handleDogClick(dog, element) {
+        if (dog.active) {
+          dogClickCount++;
+          console.log(`Dog ${dog.id} clicked, total clicks: ${dogClickCount}`);
+          dog.active = false;
+          const clickSound = new Audio("clicksound.mp3");
+          clickSound.play();
+          element.classList.add("launch-effect");
+          element.addEventListener(
+            "animationend",
+            () => {
+              element.style.display = "none";
+              setTimeout(() => {
+                dog.x = Math.random() * (window.innerWidth - 100);
+                dog.y = Math.random() * (window.innerHeight - 100);
+                dog.speedX = 2 * (Math.random() < 0.5 ? 1 : -1);
+                dog.speedY = 2 * (Math.random() < 0.5 ? 1 : -1);
+                element.style.left = dog.x + "px";
+                element.style.top = dog.y + "px";
+                element.style.display = "block";
+                element.classList.remove("launch-effect");
+                dog.active = true;
+                const respawnDojyaaan = new Audio("Dojyaaan Sound Effect.mp3");
+                respawnDojyaaan.play();
+                console.log(`Dog ${dog.id} respawned`);
+
+                if (dogClickCount <= 10) {
+                  createNewDog();
+                  console.log(
+                    `Total dogs after click ${dogClickCount}: ${dogs.length}`
+                  );
+                }
+
+                if (dogClickCount > 10) {
+                  const currentDogCount = dogs.length;
+                  console.log(
+                    `Current dogs: ${currentDogCount}, spawning ${currentDogCount} new dogs`
+                  );
+                  for (let i = 0; i < currentDogCount; i++) {
+                    createNewDog();
+                  }
+                  console.log(`Total dogs after spawn: ${dogs.length}`);
+                }
+              }, 6000);
+            },
+            { once: true }
+          );
+        }
+      }
+
+      dogs[0].element.addEventListener("click", () =>
+        handleDogClick(dogs[0], dogs[0].element)
+      );
+
+      function updateDogPositions() {
+        dogs.forEach((dog) => {
+          if (!dog.active) return;
+
+          dog.x += dog.speedX;
+          dog.y += dog.speedY;
+
+          if (dog.x <= 0 || dog.x >= window.innerWidth - 100) {
+            dog.speedX = -dog.speedX;
+            dog.x = Math.max(0, Math.min(dog.x, window.innerWidth - 100));
+          }
+          if (dog.y <= 0 || dog.y >= window.innerHeight - 100) {
+            dog.speedY = -dog.speedY;
+            dog.y = Math.max(0, Math.min(dog.y, window.innerHeight - 100));
+          }
+
+          dog.element.style.left = dog.x + "px";
+          dog.element.style.top = dog.y + "px";
+        });
+
+        requestAnimationFrame(updateDogPositions);
+      }
+
+      requestAnimationFrame(updateDogPositions);
     </script>
   </body>
 </html>
